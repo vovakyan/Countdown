@@ -107,7 +107,14 @@ function initSlideshow() {
     bgImages.forEach((src, index) => {
         const slide = document.createElement('div');
         slide.className = `bg-slide ${index === 0 ? 'active' : ''}`;
-        slide.style.backgroundImage = `url('${src}')`;
+        
+        if (index === 0) {
+            slide.style.backgroundImage = `url('${src}')`;
+            slide.dataset.loaded = "true";
+        } else {
+            slide.dataset.loaded = "false";
+        }
+        
         slideshowContainer.appendChild(slide);
     });
 
@@ -115,8 +122,16 @@ function initSlideshow() {
         setInterval(() => {
             const slides = document.querySelectorAll('.bg-slide');
             if(slides.length === 0) return;
+            
             slides[currentSlideIndex].classList.remove('active');
+            
             currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            
+            if (slides[currentSlideIndex].dataset.loaded === "false") {
+                slides[currentSlideIndex].style.backgroundImage = `url('${bgImages[currentSlideIndex]}')`;
+                slides[currentSlideIndex].dataset.loaded = "true";
+            }
+            
             slides[currentSlideIndex].classList.add('active');
         }, 8000); // Rotate every 8 seconds
     }
