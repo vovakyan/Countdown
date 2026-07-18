@@ -167,7 +167,13 @@ function init() {
 
     // Start the interval to update timers every second
     if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(updateTimers, 1000);
+    timerInterval = setInterval(() => {
+        updateTimers();
+        updateGlobalTimeline();
+    }, 1000);
+    
+    // Initial call
+    updateGlobalTimeline();
 }
 
 // ==========================================
@@ -414,6 +420,24 @@ function updateTimers() {
         if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
         if (minutesEl) minutesEl.innerText = minutes.toString().padStart(2, '0');
     });
+}
+
+function updateGlobalTimeline() {
+    const marker = document.getElementById('timelineTodayMarker');
+    if (!marker) return;
+
+    const start = new Date('2026-07-14T00:00:00').getTime();
+    const end = new Date('2027-05-20T00:00:00').getTime();
+    const now = new Date().getTime();
+
+    const totalDuration = end - start;
+    let elapsed = now - start;
+
+    let percent = (elapsed / totalDuration) * 100;
+    if (percent < 0) percent = 0;
+    if (percent > 100) percent = 100;
+
+    marker.style.top = `${percent}%`;
 }
 
 function showSetupInstructions() {

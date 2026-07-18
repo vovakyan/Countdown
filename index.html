@@ -14,8 +14,12 @@
 </head>
 
 <body>
+    <button id="enableNotificationsBtn" class="primary-btn outline" style="display: none; position: fixed; top: 1.5rem; right: 1.5rem; z-index: 100; border-radius: 50%; padding: 0.75rem; width: 44px; height: 44px; justify-content: center; align-items: center;" title="Enable Push Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+    </button>
     <div id="bgSlideshow" class="bg-slideshow"></div>
     <div class="app-container">
+
         <header>
             <div class="header-content">
                 <h1>While Dad Was Gone...Countdown</h1>
@@ -37,9 +41,6 @@
                     </svg>
                     Family Album
                 </a>
-                <button id="enableNotificationsBtn" class="primary-btn outline" style="display: none; align-items: center; gap: 0.5rem;" title="Enable Push Notifications">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                </button>
                 <button id="signInBtn" class="primary-btn outline" style="display: none;">
                     Sign in with Google
                 </button>
@@ -70,10 +71,30 @@
             </div>
         </div>
 
-        <main id="countdownsContainer" class="countdowns-grid">
-            <!-- Countdowns will be injected here via JavaScript -->
-            <div class="loading">Loading countdowns...</div>
-        </main>
+        <div style="position: relative; width: 100%;">
+            <!-- Global Timeline -->
+            <div id="globalTimeline" class="global-timeline">
+                <div class="timeline-date top-date">
+                    <span>Jul 14</span>
+                    <span class="year">2026</span>
+                </div>
+                <div class="timeline-track">
+                    <div id="timelineTodayMarker" class="timeline-marker today-marker">
+                        <span class="pulse"></span>
+                        <span class="label">Today</span>
+                    </div>
+                </div>
+                <div class="timeline-date bottom-date">
+                    <span>May 20</span>
+                    <span class="year">2027</span>
+                </div>
+            </div>
+
+            <main id="countdownsContainer" class="countdowns-grid">
+                <!-- Countdowns will be injected here via JavaScript -->
+                <div class="loading">Loading countdowns...</div>
+            </main>
+        </div>
     </div>
 
     <!-- Add Event Modal -->
