@@ -70,6 +70,8 @@ let countdowns = {};
 let timerInterval;
 let currentUser = null;
 let editingEventId = null; // Track which event we are editing
+let currentFilter = 'all';
+let searchQuery = '';
 
 // ==========================================
 // SECURITY: ALLOWED EMAILS
@@ -187,16 +189,77 @@ function renderCountdowns() {
         return;
     }
 
-    // Sort by target timestamp (closest first)
-    keys.sort((a, b) => {
+    // Apply search filter
+    let filteredKeys = keys.filter(key => {
+        if (searchQuery) {
+            const name = countdowns[key].name || "";
+            if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    const now = new Date().getTime();
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Helper to calculate distance logic for sorting
+    const getDistance = (item) => {
+        const timestamp = item.timestamp || new Date(item.date).getTime();
+        const isDateOnly = item.isDateOnly !== undefined ? item.isDateOnly : !item.date.includes('T');
+        if (isDateOnly) {
+            const targetMidnight = new Date(timestamp).setHours(0,0,0,0);
+            const currentMidnight = new Date(now).setHours(0,0,0,0);
+            return targetMidnight - currentMidnight;
+        }
+        return timestamp - now;
+    };
+
+    // Apply status filter
+    filteredKeys = filteredKeys.filter(key => {
+        const item = countdowns[key];
+        const dist = getDistance(item);
+        if (currentFilter === 'active' && dist <= 0) return false;
+        if (currentFilter === 'completed' && dist > 0) return false;
+        return true;
+    });
+
+    // Smart Sorting
+    filteredKeys.sort((a, b) => {
         const t1 = countdowns[a].timestamp || new Date(countdowns[a].date).getTime();
         const t2 = countdowns[b].timestamp || new Date(countdowns[b].date).getTime();
+        
+        const dist1 = getDistance(countdowns[a]);
+        const dist2 = getDistance(countdowns[b]);
+
+        const isOld1 = dist1 <= -ONE_DAY_MS;
+        const isOld2 = dist2 <= -ONE_DAY_MS;
+
+        if (isOld1 && !isOld2) return 1; // 1 goes to bottom
+        if (!isOld1 && isOld2) return -1; // 2 goes to bottom
+        
+        // If both are old, sort newest old first (descending)
+        if (isOld1 && isOld2) return t2 - t1;
+
+        // Otherwise sort ascending (closest first)
         return t1 - t2;
     });
 
-    keys.forEach(key => {
+    if (filteredKeys.length === 0) {
+        container.innerHTML = '<div class="empty-state">No matching countdowns found.</div>';
+        return;
+    }
+
+    filteredKeys.forEach(key => {
         const item = countdowns[key];
         const card = createCountdownCard(key, item);
+        
+        // Apply faded aesthetic for events > 1 day old
+        const dist = getDistance(item);
+        if (dist <= -ONE_DAY_MS) {
+            card.classList.add('faded-card');
+        }
+
         container.appendChild(card);
     });
 
@@ -363,6 +426,24 @@ signInBtn.addEventListener('click', () => {
 
 signOutBtn.addEventListener('click', () => {
     auth.signOut();
+});
+
+// Search & Filter Events
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderCountdowns();
+});
+
+document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        // Update active class
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // Update state and render
+        currentFilter = e.target.dataset.filter;
+        renderCountdowns();
+    });
 });
 
 // Open Modal
