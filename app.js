@@ -272,7 +272,8 @@ function createCountdownCard(id, item) {
     card.className = 'countdown-card';
 
     const timestamp = item.timestamp || new Date(item.date).getTime();
-    const createdAt = item.createdAt || new Date('2024-01-01').getTime(); // Fallback for old items
+    // Force all progress bars to calculate based on 07/14/2026
+    const createdAt = new Date('2026-07-14T00:00:00').getTime(); 
     card.dataset.targetTimestamp = timestamp;
     card.dataset.createdAt = createdAt;
     card.dataset.completed = "false";
