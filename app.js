@@ -547,7 +547,7 @@ function initNotifications() {
         } else {
             // Turn on
             if (Notification.permission === 'default') {
-                Notification.requestPermission().then(permission => {
+                const handlePermission = (permission) => {
                     if (permission === 'granted') {
                         localStorage.setItem('notificationsToggle', 'true');
                         updateIcon();
@@ -557,7 +557,13 @@ function initNotifications() {
                     } else {
                         alert("Please allow notifications in your browser settings to use this feature.");
                     }
-                });
+                };
+
+                try {
+                    Notification.requestPermission().then(handlePermission);
+                } catch (e) {
+                    Notification.requestPermission(handlePermission);
+                }
             } else if (Notification.permission === 'denied') {
                 alert("Notifications are blocked by your browser. Please enable them in your browser settings.");
             } else {
@@ -573,7 +579,7 @@ function initNotifications() {
 
 function checkAndFireNotifications(id, eventName, distance) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    if (localStorage.getItem('notificationsToggle') !== 'true') return;
+    if (localStorage.getItem('notificationsToggle') === 'false') return;
     
     // Check 0 distance (event completed)
     if (distance <= 0 && distance > -60000) {
