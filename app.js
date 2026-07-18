@@ -379,6 +379,12 @@ const closeModal = () => {
     addEventModal.classList.remove('show');
     addEventForm.reset();
     editingEventId = null;
+
+    // Reset default date/time toggle state
+    eventDateOnly.style.display = 'block';
+    eventDateOnly.required = true;
+    eventDateTime.style.display = 'none';
+    eventDateTime.required = false;
 };
 closeModalBtn.addEventListener('click', closeModal);
 
