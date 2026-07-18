@@ -1,14 +1,13 @@
-/* style.css */
 :root {
-    --bg-color: #0f172a;
-    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    --card-bg: rgba(30, 41, 59, 0.7);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
-    --accent: #8b5cf6;
+    --bg-color: #171013;
+    --bg-gradient: linear-gradient(135deg, #1f121a 0%, #3a162b 100%);
+    --card-bg: rgba(58, 22, 43, 0.6);
+    --card-border: rgba(255, 182, 193, 0.15);
+    --text-main: #fdf2f8;
+    --text-muted: #fbcfe8;
+    --primary: #ec4899;
+    --primary-hover: #db2777;
+    --accent: #fb7185;
     --danger: #ef4444;
 }
 

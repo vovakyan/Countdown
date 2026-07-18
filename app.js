@@ -204,9 +204,6 @@ function createCountdownCard(id, item) {
                 <span class="time-value minutes">00</span>
                 <span class="time-label">Min</span>
             </div>
-            <div class="time-box">
-                <span class="time-value seconds">00</span>
-                <span class="time-label">Sec</span>
             </div>
         </div>
     `;
@@ -224,14 +221,12 @@ function updateTimers() {
         const daysEl = card.querySelector('.days');
         const hoursEl = card.querySelector('.hours');
         const minutesEl = card.querySelector('.minutes');
-        const secondsEl = card.querySelector('.seconds');
 
         if (distance < 0) {
             // Event has passed
             daysEl.innerText = "00";
             hoursEl.innerText = "00";
             minutesEl.innerText = "00";
-            secondsEl.innerText = "00";
             card.style.borderColor = "var(--primary)";
             return;
         }
@@ -240,13 +235,11 @@ function updateTimers() {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         // Update UI with leading zeros
         daysEl.innerText = days.toString().padStart(2, '0');
         hoursEl.innerText = hours.toString().padStart(2, '0');
         minutesEl.innerText = minutes.toString().padStart(2, '0');
-        secondsEl.innerText = seconds.toString().padStart(2, '0');
     });
 }
 
