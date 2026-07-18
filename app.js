@@ -69,6 +69,7 @@ dateTypeRadios.forEach(radio => {
 let countdowns = {};
 let timerInterval;
 let currentUser = null;
+let editingEventId = null; // Track which event we are editing
 
 // ==========================================
 // SECURITY: ALLOWED EMAILS
@@ -180,10 +181,15 @@ function createCountdownCard(id, item) {
     }
     const formattedDate = new Date(timestamp).toLocaleDateString(undefined, options);
 
-    const deleteBtnHTML = isUserAdmin() ?
-        `<button class="delete-btn" onclick="deleteCountdown('${id}')" title="Delete">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-        </button>` : '';
+    const deleteBtnHTML = isUserAdmin() ? 
+        `<div style="display: flex; gap: 0.5rem;">
+            <button class="edit-btn" onclick="editCountdown('${id}')" title="Edit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </button>
+            <button class="delete-btn" onclick="deleteCountdown('${id}')" title="Delete">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+        </div>` : '';
 
     card.innerHTML = `
         <div class="card-header">
@@ -282,6 +288,9 @@ signOutBtn.addEventListener('click', () => {
 
 // Open Modal
 addEventBtn.addEventListener('click', () => {
+    editingEventId = null;
+    document.getElementById('modalTitle').innerText = "New Countdown";
+    document.getElementById('submitBtn').innerText = "Create Countdown";
     addEventModal.classList.add('show');
     document.getElementById('eventName').focus();
 });
@@ -290,6 +299,7 @@ addEventBtn.addEventListener('click', () => {
 const closeModal = () => {
     addEventModal.classList.remove('show');
     addEventForm.reset();
+    editingEventId = null;
 };
 closeModalBtn.addEventListener('click', closeModal);
 
@@ -328,21 +338,70 @@ addEventForm.addEventListener('submit', (e) => {
 
     if (!name) return;
 
-    // Push new date to Firebase
-    const newRef = countdownsRef.push();
-    newRef.set({
+    const payload = {
         name: name,
         date: dateStr,
         timestamp: timestamp,
-        isDateOnly: isDateOnly,
-        createdAt: firebase.database.ServerValue.TIMESTAMP
-    }).then(() => {
-        closeModal();
-    }).catch((error) => {
-        console.error("Error adding document: ", error);
-        alert("Error adding countdown.");
-    });
+        isDateOnly: isDateOnly
+    };
+
+    if (editingEventId) {
+        // Update existing date
+        countdownsRef.child(editingEventId).update(payload).then(() => {
+            closeModal();
+        }).catch((error) => {
+            console.error("Error updating document: ", error);
+            alert("Error updating countdown.");
+        });
+    } else {
+        // Push new date to Firebase
+        payload.createdAt = firebase.database.ServerValue.TIMESTAMP;
+        const newRef = countdownsRef.push();
+        newRef.set(payload).then(() => {
+            closeModal();
+        }).catch((error) => {
+            console.error("Error adding document: ", error);
+            alert("Error adding countdown.");
+        });
+    }
 });
+
+// Edit countdown (Attached to window so inline onclick works)
+window.editCountdown = function(id) {
+    const item = countdowns[id];
+    if (!item) return;
+
+    editingEventId = id;
+    document.getElementById('modalTitle').innerText = "Edit Countdown";
+    document.getElementById('submitBtn').innerText = "Save Changes";
+    document.getElementById('eventName').value = item.name;
+
+    // Determine correct input based on isDateOnly
+    const dStr = item.date || ""; 
+    // Fallback: If it's an old item without isDateOnly, assume specific time if it has 'T'
+    const isDateOnly = item.isDateOnly !== undefined ? item.isDateOnly : !dStr.includes('T');
+    
+    if (isDateOnly) {
+        document.querySelector('input[name="dateType"][value="date"]').checked = true;
+        eventDateOnly.style.display = 'block';
+        eventDateOnly.required = true;
+        eventDateTime.style.display = 'none';
+        eventDateTime.required = false;
+        
+        // Ensure format is YYYY-MM-DD
+        eventDateOnly.value = dStr.split('T')[0];
+    } else {
+        document.querySelector('input[name="dateType"][value="datetime"]').checked = true;
+        eventDateOnly.style.display = 'none';
+        eventDateOnly.required = false;
+        eventDateTime.style.display = 'block';
+        eventDateTime.required = true;
+        
+        eventDateTime.value = dStr;
+    }
+
+    addEventModal.classList.add('show');
+};
 
 // Delete countdown (Attached to window so inline onclick works)
 window.deleteCountdown = function (id) {

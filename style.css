@@ -156,7 +156,7 @@ header {
     transform: translateY(-2px);
 }
 
-.delete-btn {
+.edit-btn, .delete-btn {
     background: none;
     border: none;
     color: var(--text-muted);
@@ -167,6 +167,11 @@ header {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    color: var(--primary);
+    background: rgba(236, 72, 153, 0.1);
 }
 
 .delete-btn:hover {
