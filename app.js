@@ -16,13 +16,14 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app, database, countdownsRef;
+let app, database, countdownsRef, auth;
 let isFirebaseConfigured = false;
 
 try {
     if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
         app = firebase.initializeApp(firebaseConfig);
         database = firebase.database();
+        auth = firebase.auth();
         countdownsRef = database.ref('countdowns');
         isFirebaseConfigured = true;
     }
@@ -41,6 +42,12 @@ const addEventForm = document.getElementById('addEventForm');
 const dateTypeRadios = document.getElementsByName('dateType');
 const eventDateOnly = document.getElementById('eventDateOnly');
 const eventDateTime = document.getElementById('eventDateTime');
+
+// Auth DOM
+const signInBtn = document.getElementById('signInBtn');
+const signOutBtn = document.getElementById('signOutBtn');
+const userProfile = document.getElementById('userProfile');
+const userName = document.getElementById('userName');
 
 dateTypeRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -61,6 +68,18 @@ dateTypeRadios.forEach(radio => {
 // State
 let countdowns = {};
 let timerInterval;
+let currentUser = null;
+
+// ==========================================
+// SECURITY: ALLOWED EMAILS
+// ==========================================
+// Add the Gmail addresses of family members allowed to add/delete dates here.
+const ALLOWED_EMAILS = [
+    'vovakyan@gmail.com'
+    'natalie.ovakyan@gmail.com'
+    'scarlett.ovakyan@gmail.com'
+    'brendamorelosmichel@gmail.com'
+];
 
 // ==========================================
 // INITIALIZATION
@@ -70,6 +89,13 @@ function init() {
         showSetupInstructions();
         return;
     }
+
+    // Setup Auth Listener
+    auth.onAuthStateChanged(user => {
+        currentUser = user;
+        updateAuthUI();
+        renderCountdowns(); // Re-render to show/hide delete buttons
+    });
 
     // Listen for real-time updates from Firebase
     countdownsRef.on('value', (snapshot) => {
@@ -81,6 +107,31 @@ function init() {
     // Start the interval to update timers every second
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(updateTimers, 1000);
+}
+
+// ==========================================
+// AUTH & UI LOGIC
+// ==========================================
+function isUserAdmin() {
+    return currentUser && currentUser.email && ALLOWED_EMAILS.includes(currentUser.email.toLowerCase());
+}
+
+function updateAuthUI() {
+    if (currentUser) {
+        signInBtn.style.display = 'none';
+        userProfile.style.display = 'flex';
+        userName.innerText = currentUser.displayName || currentUser.email;
+
+        if (isUserAdmin()) {
+            addEventBtn.style.display = 'flex';
+        } else {
+            addEventBtn.style.display = 'none';
+        }
+    } else {
+        signInBtn.style.display = 'block';
+        userProfile.style.display = 'none';
+        addEventBtn.style.display = 'none';
+    }
 }
 
 // ==========================================
@@ -129,12 +180,15 @@ function createCountdownCard(id, item) {
     }
     const formattedDate = new Date(timestamp).toLocaleDateString(undefined, options);
 
+    const deleteBtnHTML = isUserAdmin() ?
+        `<button class="delete-btn" onclick="deleteCountdown('${id}')" title="Delete">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>` : '';
+
     card.innerHTML = `
         <div class="card-header">
             <h3>${item.name}</h3>
-            <button class="delete-btn" onclick="deleteCountdown('${id}')" title="Delete">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button>
+            ${deleteBtnHTML}
         </div>
         <div class="card-date">${formattedDate}</div>
         <div class="timer">
@@ -220,6 +274,19 @@ function showSetupInstructions() {
 // EVENT LISTENERS & ACTIONS
 // ==========================================
 
+// Auth Events
+signInBtn.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(error => {
+        console.error("Login failed:", error);
+        alert("Could not sign in: " + error.message);
+    });
+});
+
+signOutBtn.addEventListener('click', () => {
+    auth.signOut();
+});
+
 // Open Modal
 addEventBtn.addEventListener('click', () => {
     addEventModal.classList.add('show');
@@ -244,6 +311,11 @@ addEventForm.addEventListener('submit', (e) => {
 
     if (!isFirebaseConfigured) {
         alert("Please configure Firebase first (see instructions on screen).");
+        return;
+    }
+
+    if (!isUserAdmin()) {
+        alert("You do not have permission to add dates.");
         return;
     }
 

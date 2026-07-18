@@ -18,10 +18,19 @@
                 <h1>Countdowns</h1>
                 <p>Shared moments, tracked together.</p>
             </div>
-            <button id="addEventBtn" class="primary-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Date
-            </button>
+            <div class="header-actions">
+                <div id="userProfile" class="user-profile" style="display: none;">
+                    <span id="userName"></span>
+                    <button id="signOutBtn" class="text-btn">Sign Out</button>
+                </div>
+                <button id="signInBtn" class="primary-btn outline" style="display: none;">
+                    Sign in with Google
+                </button>
+                <button id="addEventBtn" class="primary-btn" style="display: none;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Add Date
+                </button>
+            </div>
         </header>
 
         <main id="countdownsContainer" class="countdowns-grid">
@@ -64,6 +73,7 @@
 
     <!-- Firebase SDK (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <!-- Application Logic -->

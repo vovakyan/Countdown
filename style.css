@@ -57,6 +57,24 @@ header {
     font-size: 1.1rem;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#userName {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
 /* Buttons */
 .primary-btn {
     background: var(--primary);
@@ -79,6 +97,32 @@ header {
     background: var(--primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.primary-btn.outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    box-shadow: none;
+}
+
+.primary-btn.outline:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.text-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.text-btn:hover {
+    color: var(--text-main);
+    text-decoration: underline;
 }
 
 .close-btn {
