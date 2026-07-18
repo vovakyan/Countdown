@@ -48,6 +48,7 @@ const signInBtn = document.getElementById('signInBtn');
 const signOutBtn = document.getElementById('signOutBtn');
 const userProfile = document.getElementById('userProfile');
 const userName = document.getElementById('userName');
+const familyAlbumBtn = document.getElementById('familyAlbumBtn');
 
 dateTypeRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -178,6 +179,7 @@ function updateAuthUI() {
     if (currentUser) {
         signInBtn.style.display = 'none';
         userProfile.style.display = 'flex';
+        familyAlbumBtn.style.display = 'flex';
         userName.innerText = currentUser.displayName || currentUser.email;
 
         if (isUserAdmin()) {
@@ -188,6 +190,7 @@ function updateAuthUI() {
     } else {
         signInBtn.style.display = 'block';
         userProfile.style.display = 'none';
+        familyAlbumBtn.style.display = 'none';
         addEventBtn.style.display = 'none';
     }
 }
