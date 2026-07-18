@@ -8,9 +8,9 @@
   "theme_color": "#ec4899",
   "icons": [
     {
-      "src": "images/PXL_20240524_142058096.jpg",
+      "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }
