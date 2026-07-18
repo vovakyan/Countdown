@@ -49,6 +49,7 @@ const signOutBtn = document.getElementById('signOutBtn');
 const userProfile = document.getElementById('userProfile');
 const userName = document.getElementById('userName');
 const familyAlbumBtn = document.getElementById('familyAlbumBtn');
+const enableNotificationsBtn = document.getElementById('enableNotificationsBtn');
 
 dateTypeRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -148,6 +149,7 @@ function init() {
     }
 
     initSlideshow();
+    initNotifications();
 
     // Setup Auth Listener
     auth.onAuthStateChanged(user => {
@@ -296,6 +298,8 @@ function createCountdownCard(id, item) {
     card.dataset.createdAt = createdAt;
     card.dataset.completed = "false";
     card.dataset.isDateOnly = item.isDateOnly ? 'true' : 'false';
+    card.id = id;
+    card.dataset.eventName = item.name;
 
     // Format the date nicely for display
     const options = {
@@ -362,6 +366,8 @@ function updateTimers() {
         } else {
             distance = targetDate - now;
         }
+
+        checkAndFireNotifications(card.id, card.dataset.eventName, distance);
 
         const daysEl = card.querySelector('.days');
         const hoursEl = card.querySelector('.hours');
@@ -464,6 +470,52 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
         renderCountdowns();
     });
 });
+
+// ==========================================
+// NOTIFICATIONS
+// ==========================================
+function initNotifications() {
+    if (!('Notification' in window)) {
+        console.log("This browser does not support desktop notification");
+        return;
+    }
+
+    if (Notification.permission === 'default') {
+        enableNotificationsBtn.style.display = 'flex';
+    }
+
+    enableNotificationsBtn.addEventListener('click', () => {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                enableNotificationsBtn.style.display = 'none';
+                new Notification("Notifications Enabled!", {
+                    body: "You will now be notified for upcoming events."
+                });
+            }
+        });
+    });
+}
+
+function checkAndFireNotifications(id, eventName, distance) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    
+    // Check 0 distance (event completed)
+    if (distance <= 0 && distance > -60000) {
+        if (!localStorage.getItem(`notif_${id}_completed`)) {
+            new Notification(`It's time!`, { body: `${eventName} is happening now!` });
+            localStorage.setItem(`notif_${id}_completed`, 'true');
+        }
+    }
+    
+    // Check 2 hour warning
+    // 2 hours = 7200000 ms. We fire if we are between 1h59m and 2h away.
+    if (distance > 7140000 && distance <= 7200000) {
+        if (!localStorage.getItem(`notif_${id}_2hour`)) {
+            new Notification(`Almost there!`, { body: `${eventName} is happening in 2 hours!` });
+            localStorage.setItem(`notif_${id}_2hour`, 'true');
+        }
+    }
+}
 
 // Open Modal
 addEventBtn.addEventListener('click', () => {
