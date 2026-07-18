@@ -1,0 +1,16 @@
+{
+  "name": "While Dad Was Gone...Countdown",
+  "short_name": "Countdown",
+  "description": "Shared moments, tracked together.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#171013",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "images/PXL_20240524_142058096.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
