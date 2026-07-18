@@ -75,9 +75,9 @@ let currentUser = null;
 // ==========================================
 // Add the Gmail addresses of family members allowed to add/delete dates here.
 const ALLOWED_EMAILS = [
-    'vovakyan@gmail.com'
-    'natalie.ovakyan@gmail.com'
-    'scarlett.ovakyan@gmail.com'
+    'vovakyan@gmail.com',
+    'natalie.ovakyan@gmail.com',
+    'scarlett.ovakyan@gmail.com',
     'brendamorelosmichel@gmail.com'
 ];
 
