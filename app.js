@@ -499,44 +499,72 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
 // NOTIFICATIONS
 // ==========================================
 function initNotifications() {
+    const btn = document.getElementById('enableNotificationsBtn');
+    if (!btn) return;
+
+    btn.style.display = 'flex';
+
     if (!('Notification' in window)) {
-        console.log("This browser does not support desktop notification");
+        btn.title = "Push notifications not supported on this device";
+        btn.style.opacity = '0.5';
+        btn.addEventListener('click', () => {
+            alert("Push notifications are not supported on this browser or device. On iOS, you may need to add the app to your Home Screen first.");
+        });
         return;
     }
 
-    enableNotificationsBtn.style.display = 'flex';
-    let isEnabled = localStorage.getItem('notificationsToggle') === 'true';
-
     const updateIcon = () => {
+        const browserGranted = Notification.permission === 'granted';
+        const userEnabled = localStorage.getItem('notificationsToggle') !== 'false';
+        const isEnabled = browserGranted && userEnabled;
+
         if (isEnabled) {
-            enableNotificationsBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
-            enableNotificationsBtn.style.background = 'var(--primary)';
+            // Action to Disable
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+            btn.style.background = 'var(--primary)';
+            btn.title = "Disable Push Notifications";
         } else {
-            enableNotificationsBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-            enableNotificationsBtn.style.background = 'transparent';
+            // Action to Enable
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
+            btn.style.background = 'transparent';
+            btn.title = "Enable Push Notifications";
         }
     };
 
     updateIcon();
 
-    enableNotificationsBtn.addEventListener('click', () => {
-        if (!isEnabled) {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    isEnabled = true;
-                    localStorage.setItem('notificationsToggle', 'true');
-                    updateIcon();
-                    new Notification("Notifications Enabled!", {
-                        body: "You will now be notified for upcoming events."
-                    });
-                } else {
-                    alert("Please allow notifications in your browser settings to use this feature.");
-                }
-            });
-        } else {
-            isEnabled = false;
+    btn.addEventListener('click', () => {
+        const browserGranted = Notification.permission === 'granted';
+        const userEnabled = localStorage.getItem('notificationsToggle') !== 'false';
+        const isEnabled = browserGranted && userEnabled;
+
+        if (isEnabled) {
+            // Turn off
             localStorage.setItem('notificationsToggle', 'false');
             updateIcon();
+        } else {
+            // Turn on
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        localStorage.setItem('notificationsToggle', 'true');
+                        updateIcon();
+                        new Notification("Notifications Enabled!", {
+                            body: "You will now be notified for upcoming events."
+                        });
+                    } else {
+                        alert("Please allow notifications in your browser settings to use this feature.");
+                    }
+                });
+            } else if (Notification.permission === 'denied') {
+                alert("Notifications are blocked by your browser. Please enable them in your browser settings.");
+            } else {
+                localStorage.setItem('notificationsToggle', 'true');
+                updateIcon();
+                new Notification("Notifications Re-enabled!", {
+                    body: "You will now be notified for upcoming events."
+                });
+            }
         }
     });
 }
