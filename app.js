@@ -504,24 +504,46 @@ function initNotifications() {
         return;
     }
 
-    if (Notification.permission === 'default') {
-        enableNotificationsBtn.style.display = 'flex';
-    }
+    enableNotificationsBtn.style.display = 'flex';
+    let isEnabled = localStorage.getItem('notificationsToggle') === 'true';
+
+    const updateIcon = () => {
+        if (isEnabled) {
+            enableNotificationsBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
+            enableNotificationsBtn.style.background = 'var(--primary)';
+        } else {
+            enableNotificationsBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+            enableNotificationsBtn.style.background = 'transparent';
+        }
+    };
+
+    updateIcon();
 
     enableNotificationsBtn.addEventListener('click', () => {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                enableNotificationsBtn.style.display = 'none';
-                new Notification("Notifications Enabled!", {
-                    body: "You will now be notified for upcoming events."
-                });
-            }
-        });
+        if (!isEnabled) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    isEnabled = true;
+                    localStorage.setItem('notificationsToggle', 'true');
+                    updateIcon();
+                    new Notification("Notifications Enabled!", {
+                        body: "You will now be notified for upcoming events."
+                    });
+                } else {
+                    alert("Please allow notifications in your browser settings to use this feature.");
+                }
+            });
+        } else {
+            isEnabled = false;
+            localStorage.setItem('notificationsToggle', 'false');
+            updateIcon();
+        }
     });
 }
 
 function checkAndFireNotifications(id, eventName, distance) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (localStorage.getItem('notificationsToggle') !== 'true') return;
     
     // Check 0 distance (event completed)
     if (distance <= 0 && distance > -60000) {
