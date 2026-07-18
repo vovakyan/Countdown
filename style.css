@@ -78,15 +78,20 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
     margin-bottom: 3rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--card-border);
 }
 
 .header-content h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.2rem, 3.5vw, 2.5rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-weight: 800;
-    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+    background: linear-gradient(to right, var(--primary), var(--accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.25rem;
@@ -130,13 +135,13 @@ header {
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+    box-shadow: 0 4px 14px 0 rgba(236, 72, 153, 0.39);
 }
 
 .primary-btn:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
 }
 
 .primary-btn.outline {
@@ -147,7 +152,7 @@ header {
 }
 
 .primary-btn.outline:hover {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(236, 72, 153, 0.1);
 }
 
 .text-btn {
@@ -237,23 +242,29 @@ header {
 
 /* Countdown Card */
 .countdown-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--card-border);
+    background: rgba(23, 16, 19, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 182, 193, 0.2);
     border-radius: 16px;
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
 }
 
 .countdown-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.7);
+    border-color: rgba(236, 72, 153, 0.3);
+}
+
+.countdown-card.completed {
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
 }
 
 /* A subtle gradient glow at the top of each card */
@@ -307,10 +318,12 @@ header {
 }
 
 .time-value {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 800;
     line-height: 1;
     margin-bottom: 0.25rem;
+    color: var(--text-main);
+    text-shadow: 0 2px 10px rgba(236, 72, 153, 0.3);
 }
 
 .time-label {
@@ -318,6 +331,25 @@ header {
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-top: 1.5rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    width: 0%;
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+    box-shadow: 0 0 10px var(--primary);
 }
 
 /* Modal */

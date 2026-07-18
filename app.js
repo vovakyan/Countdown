@@ -88,9 +88,13 @@ const ALLOWED_EMAILS = [
 // To change the background pictures, place images in an "images" folder
 // and list their filenames here.
 const bgImages = [
-    'images/1.jpg',
-    'images/2.jpg',
-    'images/3.jpg'
+    'images/1067_hcl699184_1_01.jpg',
+    'images/3612352859113301506.jpg',
+    'images/DSC_0398.JPG',
+    'images/IMG951568.jpg',
+    'images/PXL_20240404_134742046.MP.jpg',
+    'images/PXL_20240524_142058096.jpg',
+    'images/PXL_20241211_031532916.jpg'
 ];
 let currentSlideIndex = 0;
 
@@ -205,7 +209,10 @@ function createCountdownCard(id, item) {
     card.className = 'countdown-card';
 
     const timestamp = item.timestamp || new Date(item.date).getTime();
+    const createdAt = item.createdAt || new Date('2024-01-01').getTime(); // Fallback for old items
     card.dataset.targetTimestamp = timestamp;
+    card.dataset.createdAt = createdAt;
+    card.dataset.completed = "false";
 
     // Format the date nicely for display
     const options = {
@@ -246,7 +253,9 @@ function createCountdownCard(id, item) {
                 <span class="time-value minutes">00</span>
                 <span class="time-label">Min</span>
             </div>
-            </div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar"></div>
         </div>
     `;
     return card;
@@ -258,20 +267,43 @@ function updateTimers() {
 
     cards.forEach(card => {
         const targetDate = parseInt(card.dataset.targetTimestamp, 10);
+        const createdAt = parseInt(card.dataset.createdAt, 10);
         const distance = targetDate - now;
 
         const daysEl = card.querySelector('.days');
         const hoursEl = card.querySelector('.hours');
         const minutesEl = card.querySelector('.minutes');
+        const progressBar = card.querySelector('.progress-bar');
 
         if (distance < 0) {
             // Event has passed
             daysEl.innerText = "00";
             hoursEl.innerText = "00";
             minutesEl.innerText = "00";
-            card.style.borderColor = "var(--primary)";
+            card.classList.add('completed');
+            if (progressBar) progressBar.style.width = '100%';
+            
+            if (card.dataset.completed === "false") {
+                card.dataset.completed = "true";
+                // Trigger confetti if we just caught it hitting zero
+                if (Math.abs(distance) < 60000 && window.confetti) { // Only if passed within the last minute
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+            }
             return;
         }
+
+        // Calculate progress percentage
+        const totalDuration = targetDate - createdAt;
+        const elapsed = now - createdAt;
+        let progressPercent = (elapsed / totalDuration) * 100;
+        if (progressPercent < 0) progressPercent = 0;
+        if (progressPercent > 100) progressPercent = 100;
+        if (progressBar) progressBar.style.width = `${progressPercent}%`;
 
         // Time calculations
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
