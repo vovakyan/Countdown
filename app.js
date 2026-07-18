@@ -213,6 +213,7 @@ function createCountdownCard(id, item) {
     card.dataset.targetTimestamp = timestamp;
     card.dataset.createdAt = createdAt;
     card.dataset.completed = "false";
+    card.dataset.isDateOnly = item.isDateOnly ? 'true' : 'false';
 
     // Format the date nicely for display
     const options = {
@@ -245,6 +246,7 @@ function createCountdownCard(id, item) {
                 <span class="time-value days">00</span>
                 <span class="time-label">Days</span>
             </div>
+            ${!item.isDateOnly ? `
             <div class="time-box">
                 <span class="time-value hours">00</span>
                 <span class="time-label">Hrs</span>
@@ -252,7 +254,7 @@ function createCountdownCard(id, item) {
             <div class="time-box">
                 <span class="time-value minutes">00</span>
                 <span class="time-label">Min</span>
-            </div>
+            </div>` : ''}
         </div>
         <div class="progress-container">
             <div class="progress-bar"></div>
@@ -268,18 +270,27 @@ function updateTimers() {
     cards.forEach(card => {
         const targetDate = parseInt(card.dataset.targetTimestamp, 10);
         const createdAt = parseInt(card.dataset.createdAt, 10);
-        const distance = targetDate - now;
+        const isDateOnly = card.dataset.isDateOnly === 'true';
+        
+        let distance;
+        if (isDateOnly) {
+            const targetMidnight = new Date(targetDate).setHours(0,0,0,0);
+            const currentMidnight = new Date(now).setHours(0,0,0,0);
+            distance = targetMidnight - currentMidnight;
+        } else {
+            distance = targetDate - now;
+        }
 
         const daysEl = card.querySelector('.days');
         const hoursEl = card.querySelector('.hours');
         const minutesEl = card.querySelector('.minutes');
         const progressBar = card.querySelector('.progress-bar');
 
-        if (distance < 0) {
+        if (distance <= 0) {
             // Event has passed
             daysEl.innerText = "00";
-            hoursEl.innerText = "00";
-            minutesEl.innerText = "00";
+            if (hoursEl) hoursEl.innerText = "00";
+            if (minutesEl) minutesEl.innerText = "00";
             card.classList.add('completed');
             if (progressBar) progressBar.style.width = '100%';
             
@@ -312,8 +323,8 @@ function updateTimers() {
 
         // Update UI with leading zeros
         daysEl.innerText = days.toString().padStart(2, '0');
-        hoursEl.innerText = hours.toString().padStart(2, '0');
-        minutesEl.innerText = minutes.toString().padStart(2, '0');
+        if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
+        if (minutesEl) minutesEl.innerText = minutes.toString().padStart(2, '0');
     });
 }
 
