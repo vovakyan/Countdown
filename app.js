@@ -83,6 +83,40 @@ const ALLOWED_EMAILS = [
 ];
 
 // ==========================================
+// BACKGROUND SLIDESHOW
+// ==========================================
+// To change the background pictures, place images in an "images" folder
+// and list their filenames here.
+const bgImages = [
+    'images/1.jpg',
+    'images/2.jpg',
+    'images/3.jpg'
+];
+let currentSlideIndex = 0;
+
+function initSlideshow() {
+    const slideshowContainer = document.getElementById('bgSlideshow');
+    if (!slideshowContainer) return;
+
+    bgImages.forEach((src, index) => {
+        const slide = document.createElement('div');
+        slide.className = `bg-slide ${index === 0 ? 'active' : ''}`;
+        slide.style.backgroundImage = `url('${src}')`;
+        slideshowContainer.appendChild(slide);
+    });
+
+    if (bgImages.length > 1) {
+        setInterval(() => {
+            const slides = document.querySelectorAll('.bg-slide');
+            if(slides.length === 0) return;
+            slides[currentSlideIndex].classList.remove('active');
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            slides[currentSlideIndex].classList.add('active');
+        }, 8000); // Rotate every 8 seconds
+    }
+}
+
+// ==========================================
 // INITIALIZATION
 // ==========================================
 function init() {
@@ -90,6 +124,8 @@ function init() {
         showSetupInstructions();
         return;
     }
+
+    initSlideshow();
 
     // Setup Auth Listener
     auth.onAuthStateChanged(user => {
