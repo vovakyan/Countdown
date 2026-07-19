@@ -297,7 +297,14 @@ function createCountdownCard(id, item) {
     const card = document.createElement('div');
     card.className = 'countdown-card';
 
-    const timestamp = item.timestamp || new Date(item.date).getTime();
+    let timestamp;
+    if (item.isDateOnly && item.date) {
+        // Ensure Date-Only events are evaluated at midnight in the viewer's local timezone
+        timestamp = new Date(item.date + "T00:00:00").getTime();
+    } else {
+        timestamp = item.timestamp || new Date(item.date).getTime();
+    }
+    
     // Force all progress bars to calculate based on 07/14/2026
     const createdAt = new Date('2026-07-14T00:00:00').getTime(); 
     card.dataset.targetTimestamp = timestamp;
@@ -648,7 +655,8 @@ addEventForm.addEventListener('submit', (e) => {
     if (isDateOnly) {
         dateStr = eventDateOnly.value;
         if (!dateStr) return;
-        timestamp = new Date(dateStr + "T00:00:00").getTime();
+        // Store as Noon UTC to ensure consistent database sorting across timezones
+        timestamp = new Date(dateStr + "T12:00:00Z").getTime();
     } else {
         dateStr = eventDateTime.value;
         if (!dateStr) return;
