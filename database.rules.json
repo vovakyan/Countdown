@@ -1,0 +1,10 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "countdowns": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email_verified == true && (auth.token.email == 'vovakyan@gmail.com' || auth.token.email == 'natalie.ovakyan@gmail.com' || auth.token.email == 'scarlett.ovakyan@gmail.com' || auth.token.email == 'brendamorelosmichel@gmail.com')"
+    }
+  }
+}
